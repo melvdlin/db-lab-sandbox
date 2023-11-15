@@ -1,9 +1,15 @@
 package org.somevand.dblabsandbox;
 
-import java.io.*;
+import com.github.mustachejava.DefaultMustacheFactory;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.Map;
 
 @WebServlet(name = "helloServlet", value = "/hello-servlet")
 public class HelloServlet extends HttpServlet {
@@ -16,13 +22,20 @@ public class HelloServlet extends HttpServlet {
     public void doGet(
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
-        response.setContentType("text/html");
+        var contextPath = getServletContext().getContextPath();
 
-        // Hello
+        response.setContentType("text/html");
         PrintWriter out = response.getWriter();
-        out.println("<html><body>");
-        out.println("<h1>" + message + "</h1>");
-        out.println("</body></html>");
+
+        var mustacheFactory = new DefaultMustacheFactory();
+        var scriptedMustache =
+                mustacheFactory.compile(new InputStreamReader(
+                        getServletContext().getResourceAsStream(
+                                "templates/scripted.mustache")), "scripted");
+
+        var context = Map.of("contextPath", contextPath);
+
+        out = new PrintWriter(scriptedMustache.execute(out, context));
     }
 
     public void destroy() {

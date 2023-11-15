@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>scripted</title>
+    <script>
+        const sock = connect();
+
+        function connect() {
+            if ("WebSocket" in window) {
+                let sock = new WebSocket("ws://localhost:8080/{{contextPath}}/basicEndpoint");
+                sock.onmessage = function (event) {
+                    const msgNode = document.createElement("p");
+                    msgNode.innerHTML = event.data;
+                    document.getElementById("thelist").appendChild(msgNode);
+                };
+                return sock;
+            } else {
+                return null;
+            }
+        }
+
+        function clickMe() {
+            sock.send("Yo");
+        }
+    </script>
+</head>
+<body>
+<div>
+    <div id="thelist">
+    </div>
+    <div id="thebutton">
+        <button onclick="clickMe()">
+            click me oooo
+        </button>
+    </div>
+</div>
+</body>
+
+</html>
