@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{username}}</title>
+    <script>
+        const sock = connect();
+
+        class ClientChatMessage {
+            constructor(body) {
+                this.body = body;
+            }
+        }
+
+        function connect() {
+            if ("WebSocket" in window) {
+                let sock = new WebSocket("ws://localhost:8080/{{contextPath}}/endpoints/chat/{{username}}");
+                sock.addEventListener("message", onMessage);
+                return sock;
+            } else {
+                return null;
+            }
+        }
+
+        function onMessage(event) {
+            const msgNode = document.createElement("p");
+            const message = JSON.parse(event.data);
+            msgNode.innerHTML = message.username + ": " + message.body;
+            document.getElementById("messages").appendChild(msgNode);
+        }
+
+    </script>
+</head>
+<body>
+<div>
+    <div id="messages">
+    </div>
+    <div>
+        <textarea id="messageField"
+                  placeholder="type something, {{username}}..."></textarea>
+    </div>
+</div>
+<script>
+    document.getElementById("messageField").addEventListener("keydown", textFieldKeyListener);
+
+    function textFieldKeyListener(keyDown) {
+        if (keyDown.key === "Enter") {
+            if (keyDown.shiftKey) {
+                this.value += "\n";
+            } else {
+                keyDown.stopPropagation();
+                keyDown.preventDefault();
+                sendMessage();
+            }
+        }
+    }
+
+    function sendMessage() {
+        const messageField = document.getElementById("messageField");
+        const message = new ClientChatMessage(messageField.value);
+        sock.send(JSON.stringify(message));
+        messageField.value = "";
+    }
+</script>
+</body>
+</html>
