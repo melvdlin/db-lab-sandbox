@@ -3,7 +3,6 @@ package org.somevand.dblabsandbox.chat;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +22,7 @@ public class ChatServlet extends HttpServlet {
     private static final ConcurrentMap<String, Mustache> MUSTACHES = new ConcurrentHashMap<>();
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         var templateStream =
                 getServletContext().getResourceAsStream("/templates/chat.mustache");
         var templateReader = new InputStreamReader(templateStream);
@@ -35,11 +34,16 @@ public class ChatServlet extends HttpServlet {
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
-        var contextPath = getServletContext().getContextPath();
         var username = request.getPathInfo().substring(1);
 
-        var context = Map.of(
-                "contextPath", contextPath,
+        if (username.isEmpty()) {
+            response.sendError(404);
+        }
+
+        var endpointURL = getEndpointURL(request, username);
+
+        var templateContext = Map.of(
+                "endpointURL", endpointURL,
                 "username", username
         );
 
@@ -47,6 +51,25 @@ public class ChatServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
 
-        out = new PrintWriter(MUSTACHES.get("chat").execute(out, context));
+        out = new PrintWriter(MUSTACHES.get("chat").execute(out, templateContext));
+    }
+
+    private static String getEndpointURL(
+            HttpServletRequest request,
+            String username) {
+        var websocketProtocol =
+                request.isSecure() ? "wss" : "ws";
+        var host = request.getServerName();
+        var port = request.getServerPort();
+        var context = request.getContextPath().substring(1);
+        var endpoint = "endpoints/chat";
+        return String.format(
+                "%s://%s:%d/%s/%s/%s",
+                websocketProtocol,
+                host,
+                port,
+                context,
+                endpoint,
+                username);
     }
 }
