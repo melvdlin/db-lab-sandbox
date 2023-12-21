@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Tomcat 10.1.16" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 10.1.16" ALTERNATIVE_JRE_ENABLED="false">
-    <option name="OPEN_IN_BROWSER_URL" value="https://localhost:8443/db_lab_sandbox_war_exploded/" />
+    <option name="OPEN_IN_BROWSER_URL" value="https://localhost:8443/db_lab_sandbox_war_exploded/chat/steve" />
     <option name="BROWSER_ID" value="a7bb68e0-33c0-4d6f-a81a-aac1fdb870c8" />
     <option name="UPDATING_POLICY" value="redeploy-artifacts" />
     <deployment>
